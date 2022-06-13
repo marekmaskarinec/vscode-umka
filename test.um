@@ -1,0 +1,8 @@
+
+import (
+	"std.um"								
+)
+
+fn main() {
+	std.println("hello world")
+}

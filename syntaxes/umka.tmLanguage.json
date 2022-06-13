@@ -1,0 +1,81 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Umka",
+	"scopeName": "source.um",
+	"fileTypes": [ "um" ],
+	"patterns": [
+		{ "include": "#keyword" }, { "include": "#string" },
+		{ "include": "#constant" }, { "include": "#comment" },
+		{ "include": "#type" }, { "include": "#entity" }],
+
+	"repository": {
+		"keyword": {
+				"name": "keyword.control.umka",
+				"match": "\\b(import|if|for|return|fn|type|struct|interface|break|case|switch|default|else|var|weak|const)\\b"
+		},
+
+		"operator": {
+			"name": "keyword.operator.umka",
+			"match": "\\+|\\-|\\*|\/|%|==|!=|<=|>=|<|>|=|!|\\|\\||&&|&|^|~|\\(||\\)|:="
+		},
+
+		"string": {
+			"name": "string.quoted.double.umka",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.umka",
+					"match": "\\\\."
+				}
+			]
+		},
+
+		"number": {
+			"name": "constant.numeric.umka",
+			"match": "\b(0[Xx])?[0-9.]+([Ee][+-]?[0-9]*)?\b"
+		},
+
+		"constant": {
+			"patterns": [
+				{
+					"name": "constant.language.umka",
+					"match": "\b(true|false|null)\b"
+				},
+				{
+					"name": "constant.numeric.umka",
+					"match": "\\-?\\b\\d+\\.?\\d*\\b"
+				},
+				{
+					"name": "constant.numeric.hexadecimal.umka",
+					"match": "\\b0x\\d*\\b"
+				}
+			]
+		},
+
+		"comment": {
+			"name": "comment.line.double-slash.umka",
+			"begin": "//",
+			"end": "\n"
+		},
+
+		"blockComment": {
+			"name": "comment.block.umka",
+			"begin": "/\\*",
+			"end": "\\*/"
+		},
+
+		"block": {
+			"name": "meta.block.umka",
+			"begin": "{",
+			"beginCaptures": { "0": { "name": "punctuation.section.block.begin.umka" }},
+			"end": "}",
+			"endCaptures": { "0": { "name": "punctuation.section.block.begin.umka" }}
+		},
+
+		"type": {
+			"name": "entity.name.type",
+			"match": "\\b(void|int8|int16|int32|int|uint8|uint16|uint32|uint|bool|char|str|real32|real|fiber)\\b"
+		}
+	}
+}
