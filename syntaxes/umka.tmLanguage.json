@@ -33,22 +33,22 @@
 
 		"number": {
 			"name": "constant.numeric.umka",
-			"match": "\b(0[Xx])?[0-9.]+([Ee][+-]?[0-9]*)?\b"
+			"match": "\\b[+-]?(0[Xx])?([aA-fF]?[0-9]?)+\\b"
 		},
 
 		"constant": {
 			"patterns": [
 				{
 					"name": "constant.language.umka",
-					"match": "\b(true|false|null)\b"
+					"match": "\\b(true|false|null)\\b"
 				},
 				{
 					"name": "constant.numeric.umka",
-					"match": "\\-?\\b\\d+\\.?\\d*\\b"
+					"match": "\\b[+-]?[0-9]+\\.?[0-9]*\\b"
 				},
 				{
 					"name": "constant.numeric.hexadecimal.umka",
-					"match": "\\b0x\\d*\\b"
+					"match": "\\b0[Xx][aA-fF]+\\b"
 				}
 			]
 		},
@@ -75,7 +75,7 @@
 
 		"type": {
 			"name": "entity.name.type",
-			"match": "\\b(void|int8|int16|int32|int|uint8|uint16|uint32|uint|bool|char|str|real32|real|fiber)\\b"
+			"match": "\\b(void|int8|int16|int32|int|uint8|uint16|uint32|uint|bool|char|str|real32|real|fiber|any)\\b"
 		}
 	}
 }
