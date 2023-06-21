@@ -14,14 +14,18 @@
 		"type": "git",
 		"url": "https://github.com/marekmaskarinec/vscode-umka"
 	},
-	"categories": [ "Languages" ],
+	"categories": [ "Programming Languages" ],
 	"contributes": {
 		"languages": [
 			{
 				"id": "umka",
 				"aliases": ["Umka", "umka"],
 				"extensions": [".um"],
-				"configuration": "./umka.configuration.json"
+				"configuration": "./umka.configuration.json",
+				"icon": {
+					"dark": "./images/icon-dark.png",
+					"light": "./images/icon-light.png"
+				}
 			}
 		],
 

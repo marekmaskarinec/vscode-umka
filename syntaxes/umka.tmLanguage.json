@@ -1,81 +1,833 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Umka",
 	"scopeName": "source.um",
-	"fileTypes": [ "um" ],
 	"patterns": [
-		{ "include": "#keyword" }, { "include": "#string" },
-		{ "include": "#constant" }, { "include": "#comment" },
-		{ "include": "#type" }, { "include": "#entity" }],
-
-	"repository": {
-		"keyword": {
-				"name": "keyword.control.umka",
-				"match": "\\b(import|if|for|return|fn|type|struct|interface|break|case|switch|default|else|var|weak|const)\\b"
+		{
+			"include": "#comments"
 		},
-
-		"operator": {
-			"name": "keyword.operator.umka",
-			"match": "\\+|\\-|\\*|\/|%|==|!=|<=|>=|<|>|=|!|\\|\\||&&|&|^|~|\\(||\\)|:="
+		{
+			"include": "#comments"
 		},
-
-		"string": {
-			"name": "string.quoted.double.umka",
+		{
+			"comment": "Interpreted string literals",
 			"begin": "\"",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.go"
+				}
+			},
 			"end": "\"",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.go"
+				}
+			},
+			"name": "string.quoted.double.go",
 			"patterns": [
 				{
-					"name": "constant.character.escape.umka",
-					"match": "\\\\."
+					"include": "#string_escaped_char"
+				},
+				{
+					"include": "#string_placeholder"
 				}
 			]
 		},
-
-		"number": {
-			"name": "constant.numeric.umka",
-			"match": "\\b[+-]?(0[Xx])?([aA-fF]?[0-9]?)+\\b"
+		{
+			"comment": "Built-in functions",
+			"match": "\\b(append|cap|close|complex|copy|delete|imag|len|make|new|panic|print|println|real|recover)\\b(?=\\()",
+			"name": "support.function.builtin.umka"
 		},
-
-		"constant": {
+		{
+			"comment": "Function declarations",
+			"match": "^(\\bfn\\b)(?:\\s+(\\([^\\)]+\\)\\s+)?(\\w+)(?=\\*?\\())?",
+			"captures": {
+				"1": {
+					"name": "keyword.function.umka"
+				},
+				"2": {
+					"patterns": [
+						{
+							"include": "#brackets"
+						},
+						{
+							"include": "#operators"
+						}
+					]
+				},
+				"3": {
+					"patterns": [
+						{
+							"match": "\\d\\w*",
+							"name": "invalid.illegal.identifier.umka"
+						},
+						{
+							"match": "\\w+",
+							"name": "entity.name.function.umka"
+						}
+					]
+				}
+			}
+		},
+		{
+			"comment": "Functions",
+			"match": "(\\bfn\\b)|(\\w+)(?=\\()",
+			"captures": {
+				"1": {
+					"name": "keyword.function.umka"
+				},
+				"2": {
+					"patterns": [
+						{
+							"match": "\\d\\w*",
+							"name": "invalid.illegal.identifier.umka"
+						},
+						{
+							"match": "\\w+",
+							"name": "support.function.umka"
+						}
+					]
+				}
+			}
+		},
+		{
+			"include": "#numeric_literals"
+		},
+		{
+			"comment": "Language constants",
+			"match": "\\b(true|false|null)\\b",
+			"name": "constant.language.umka"
+		},
+		{
+			"begin": "\\b(type)\\s+",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.type.umka"
+				}
+			},
+			"end": "(?!\\G)",
 			"patterns": [
 				{
-					"name": "constant.language.umka",
-					"match": "\\b(true|false|null)\\b"
+					"match": "\\d\\w*",
+					"name": "invalid.illegal.identifier.umka"
 				},
 				{
-					"name": "constant.numeric.umka",
-					"match": "\\b[+-]?[0-9]+\\.?[0-9]*\\b"
-				},
-				{
-					"name": "constant.numeric.hexadecimal.umka",
-					"match": "\\b0[Xx][aA-fF]+\\b"
+					"match": "\\w+",
+					"name": "entity.name.type.umka"
 				}
 			]
 		},
-
-		"comment": {
-			"name": "comment.line.double-slash.umka",
-			"begin": "//",
-			"end": "\n"
+		{
+			"begin": "\\b(import)\\s+",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.import.umka"
+				}
+			},
+			"end": "(?!\\G)",
+			"patterns": [
+				{
+					"include": "#imports"
+				}
+			]
 		},
-
-		"blockComment": {
-			"name": "comment.block.umka",
-			"begin": "/\\*",
-			"end": "\\*/"
+		{
+			"begin": "\\b(var)\\s+",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.var.umka"
+				}
+			},
+			"end": "(?!\\G)",
+			"patterns": [
+				{
+					"include": "#variables"
+				}
+			]
 		},
-
-		"block": {
-			"name": "meta.block.umka",
-			"begin": "{",
-			"beginCaptures": { "0": { "name": "punctuation.section.block.begin.umka" }},
-			"end": "}",
-			"endCaptures": { "0": { "name": "punctuation.section.block.begin.umka" }}
+		{
+			"match": "(?<!var)\\s*(\\w+(?:\\.\\w+)*(?>,\\s*\\w+(?:\\.\\w+)*)*)(?=\\s*=(?!=))",
+			"captures": {
+				"1": {
+					"patterns": [
+						{
+							"match": "\\d\\w*",
+							"name": "invalid.illegal.identifier.umka"
+						},
+						{
+							"match": "\\w+(?:\\.\\w+)*",
+							"name": "variable.other.assignment.umka",
+							"captures": {
+								"0": {
+									"patterns": [
+										{
+											"include": "#delimiters"
+										}
+									]
+								}
+							}
+						},
+						{
+							"include": "#delimiters"
+						}
+					]
+				}
+			}
 		},
-
-		"type": {
-			"name": "entity.name.type",
-			"match": "\\b(void|int8|int16|int32|int|uint8|uint16|uint32|uint|bool|char|str|real32|real|fiber|any)\\b"
+		{
+			"match": "\\b\\w+(?:,\\s*\\w+)*(?=\\s*:=)",
+			"captures": {
+				"0": {
+					"patterns": [
+						{
+							"match": "\\d\\w*",
+							"name": "invalid.illegal.identifier.umka"
+						},
+						{
+							"match": "\\w+",
+							"name": "variable.other.assignment.umka"
+						},
+						{
+							"include": "#delimiters"
+						}
+					]
+				}
+			}
+		},
+		{
+			"comment": "Terminators",
+			"match": ";",
+			"name": "punctuation.terminator.umka"
+		},
+		{
+			"include": "#brackets"
+		},
+		{
+			"include": "#delimiters"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#storage_types"
+		}
+	],
+	"repository": {
+		"brackets": {
+			"patterns": [
+				{
+					"begin": "{",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.begin.bracket.curly.umka"
+						}
+					},
+					"end": "}",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.end.bracket.curly.umka"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"begin": "\\(",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.begin.bracket.round.umka"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.end.bracket.round.umka"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"match": "\\[|\\]",
+					"name": "punctuation.definition.bracket.square.umka"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.block.umka",
+					"begin": "(\\/\\*)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.definition.comment.umka"
+						}
+					},
+					"end": "(\\*\\/)",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.definition.comment.umka"
+						}
+					}
+				},
+				{
+					"name": "comment.line.double-slash.umka",
+					"begin": "(\\/\\/)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.definition.comment.umka"
+						}
+					},
+					"end": "(?:\\n|$)"
+				}
+			]
+		},
+		"delimiters": {
+			"patterns": [
+				{
+					"match": ",",
+					"name": "punctuation.other.comma.umka"
+				},
+				{
+					"match": "\\.(?!\\.\\.)",
+					"name": "punctuation.other.period.umka"
+				},
+				{
+					"match": ":(?!=)",
+					"name": "punctuation.other.colon.umka"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"comment": "Flow control keywords",
+					"match": "\\b(break|case|const|continue|default|else|for|fn|import|interface|if|in|map|return|str|struct|switch|type|var|weak)\\b",
+					"name": "keyword.control.umka"
+				},
+				{
+					"match": "\\bconst\\b",
+					"name": "keyword.const.umka"
+				},
+				{
+					"match": "\\bfn\\b",
+					"name": "keyword.function.umka"
+				},
+				{
+					"match": "\\binterface\\b",
+					"name": "keyword.interface.umka"
+				},
+				{
+					"match": "\\bmap\\b",
+					"name": "keyword.map.umka"
+				},
+				{
+					"match": "\\bstruct\\b",
+					"name": "keyword.struct.umka"
+				}
+			]
+		},
+		"operators": {
+			"comment": "Note that the order here is very important!",
+			"patterns": [
+				{
+					"match": "(\\^|&)(?=\\w)",
+					"name": "keyword.operator.address.umka"
+				},
+				{
+					"match": "\\-\\-",
+					"name": "keyword.operator.decrement.umka"
+				},
+				{
+					"match": "\\+\\+",
+					"name": "keyword.operator.increment.umka"
+				},
+				{
+					"match": "(==|!=|<=|>=|<(?!<)|>(?!>))",
+					"name": "keyword.operator.comparison.umka"
+				},
+				{
+					"match": "(&&|\\|\\||!)",
+					"name": "keyword.operator.logical.umka"
+				},
+				{
+					"match": "(=|\\+=|\\-=|\\|=|\\^=|\\*=|/=|:=|%=|<<=|>>=|&\\^=|&=)",
+					"name": "keyword.operator.assignment.umka"
+				},
+				{
+					"match": "(\\+|\\-|\\*|/|%)",
+					"name": "keyword.operator.arithmetic.umka"
+				},
+				{
+					"match": "(&(?!\\^)|\\||\\^|&\\^|<<|>>)",
+					"name": "keyword.operator.arithmetic.bitwise.umka"
+				}
+			]
+		},
+		"storage_types": {
+			"patterns": [
+				{
+					"match": "\\bbool\\b",
+					"name": "storage.type.boolean.umka"
+				},
+				{
+					"match": "\\bchar\\b",
+					"name": "storage.type.char.umka"
+				},
+				{
+					"match": "\\berror\\b",
+					"name": "storage.type.error.umka"
+				},
+				{
+					"match": "\\b(real(32|64)|u?int(8|16|32|64)?)\\b",
+					"name": "storage.type.numeric.umka"
+				},
+				{
+					"match": "\\bstr\\b",
+					"name": "storage.type.string.umka"
+				}
+			]
+		},
+		"string_escaped_char": {
+			"patterns": [
+				{
+					"match": "\\\\([0-7]{3}|[abfnrtv\\\\'\"]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})",
+					"name": "constant.character.escape.umka"
+				},
+				{
+					"match": "\\\\[^0-7xuUabfnrtv\\'\"]",
+					"name": "invalid.illegal.unknown-escape.umka"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"match": "(\\w+(?:,\\s*\\w+)*)(\\s+\\*?\\w+(?:\\.\\w+)?\\s*)?(?=\\s*=)",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"match": "\\d\\w*",
+									"name": "invalid.illegal.identifier.umka"
+								},
+								{
+									"match": "\\w+",
+									"name": "variable.other.assignment.umka"
+								},
+								{
+									"include": "#delimiters"
+								}
+							]
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "$self"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(\\w+(?:,\\s*\\w+)*)(\\s+(\\[(\\d*|\\.\\.\\.)\\])*\\*?(<-)?\\w+(?:\\.\\w+)?\\s*[^=].*)",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"match": "\\d\\w*",
+									"name": "invalid.illegal.identifier.umka"
+								},
+								{
+									"match": "\\w+",
+									"name": "variable.other.declaration.umka"
+								},
+								{
+									"include": "#delimiters"
+								}
+							]
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "$self"
+								}
+							]
+						}
+					}
+				},
+				{
+					"begin": "\\(",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.variables.begin.bracket.round.umka"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.variables.end.bracket.round.umka"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						},
+						{
+							"include": "#variables"
+						}
+					]
+				}
+			]
+		},
+		"numeric_literals": {
+			"match": "(?<!\\w)\\.?\\d(?:(?:[0-9a-zA-Z_\\.])|(?<=[eEpP])[+-])*",
+			"captures": {
+				"0": {
+					"patterns": [
+						{
+							"begin": "(?=.)",
+							"end": "(?:\\n|$)",
+							"patterns": [
+								{
+									"match": "(?:(?:(?:(?:(?:\\G(?=[0-9.])(?!0[xXbBoO])([0-9](?:[0-9]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)((?:(?<=[0-9])\\.|\\.(?=[0-9])))([0-9](?:[0-9]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)?(?:(?<!_)([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)))?(i(?!\\w))?(?:\\n|$)|\\G(?=[0-9.])(?!0[xXbBoO])([0-9](?:[0-9]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(?<!_)([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*))(i(?!\\w))?(?:\\n|$))|\\G((?:(?<=[0-9])\\.|\\.(?=[0-9])))([0-9](?:[0-9]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(?:(?<!_)([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)))?(i(?!\\w))?(?:\\n|$))|(\\G0[xX])_?([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)((?:(?<=[0-9a-fA-F])\\.|\\.(?=[0-9a-fA-F])))([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)?(?<!_)([pP])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*))(i(?!\\w))?(?:\\n|$))|(\\G0[xX])_?([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(?<!_)([pP])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*))(i(?!\\w))?(?:\\n|$))|(\\G0[xX])((?:(?<=[0-9a-fA-F])\\.|\\.(?=[0-9a-fA-F])))([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(?<!_)([pP])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*))(i(?!\\w))?(?:\\n|$))",
+									"captures": {
+										"1": {
+											"name": "constant.numeric.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"2": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"3": {
+											"name": "constant.numeric.decimal.point.umka"
+										},
+										"4": {
+											"name": "constant.numeric.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"5": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"6": {
+											"name": "keyword.other.unit.exponent.decimal.umka"
+										},
+										"7": {
+											"name": "keyword.operator.plus.exponent.decimal.umka"
+										},
+										"8": {
+											"name": "keyword.operator.minus.exponent.decimal.umka"
+										},
+										"9": {
+											"name": "constant.numeric.exponent.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"10": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"11": {
+											"name": "constant.numeric.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"12": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"13": {
+											"name": "keyword.other.unit.exponent.decimal.umka"
+										},
+										"14": {
+											"name": "keyword.operator.plus.exponent.decimal.umka"
+										},
+										"15": {
+											"name": "keyword.operator.minus.exponent.decimal.umka"
+										},
+										"16": {
+											"name": "constant.numeric.exponent.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"17": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"18": {
+											"name": "constant.numeric.decimal.point.umka"
+										},
+										"19": {
+											"name": "constant.numeric.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"20": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"21": {
+											"name": "keyword.other.unit.exponent.decimal.umka"
+										},
+										"22": {
+											"name": "keyword.operator.plus.exponent.decimal.umka"
+										},
+										"23": {
+											"name": "keyword.operator.minus.exponent.decimal.umka"
+										},
+										"24": {
+											"name": "constant.numeric.exponent.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"25": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"26": {
+											"name": "keyword.other.unit.hexadecimal.umka"
+										},
+										"27": {
+											"name": "constant.numeric.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"28": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"29": {
+											"name": "constant.numeric.hexadecimal.umka"
+										},
+										"30": {
+											"name": "constant.numeric.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"31": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"32": {
+											"name": "keyword.other.unit.exponent.hexadecimal.umka"
+										},
+										"33": {
+											"name": "keyword.operator.plus.exponent.hexadecimal.umka"
+										},
+										"34": {
+											"name": "keyword.operator.minus.exponent.hexadecimal.umka"
+										},
+										"35": {
+											"name": "constant.numeric.exponent.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"36": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"37": {
+											"name": "keyword.other.unit.hexadecimal.umka"
+										},
+										"38": {
+											"name": "constant.numeric.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"39": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"40": {
+											"name": "keyword.other.unit.exponent.hexadecimal.umka"
+										},
+										"41": {
+											"name": "keyword.operator.plus.exponent.hexadecimal.umka"
+										},
+										"42": {
+											"name": "keyword.operator.minus.exponent.hexadecimal.umka"
+										},
+										"43": {
+											"name": "constant.numeric.exponent.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"44": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"45": {
+											"name": "keyword.other.unit.hexadecimal.umka"
+										},
+										"46": {
+											"name": "constant.numeric.hexadecimal.umka"
+										},
+										"47": {
+											"name": "constant.numeric.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"48": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"49": {
+											"name": "keyword.other.unit.exponent.hexadecimal.umka"
+										},
+										"50": {
+											"name": "keyword.operator.plus.exponent.hexadecimal.umka"
+										},
+										"51": {
+											"name": "keyword.operator.minus.exponent.hexadecimal.umka"
+										},
+										"52": {
+											"name": "constant.numeric.exponent.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"53": {
+											"name": "keyword.other.unit.imaginary.umka"
+										}
+									}
+								},
+								{
+									"match": "(?:(?:(?:\\G(?=[0-9.])(?!0[xXbBoO])([0-9](?:[0-9]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(i(?!\\w))?(?:\\n|$)|(\\G0[bB])_?([01](?:[01]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(i(?!\\w))?(?:\\n|$))|(\\G0[oO]?)_?((?:[0-7]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))+)(i(?!\\w))?(?:\\n|$))|(\\G0[xX])_?([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])_(?=[0-9a-fA-F])))*)(i(?!\\w))?(?:\\n|$))",
+									"captures": {
+										"1": {
+											"name": "constant.numeric.decimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"2": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"3": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"4": {
+											"name": "keyword.other.unit.binary.umka"
+										},
+										"5": {
+											"name": "constant.numeric.binary.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"6": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"7": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"8": {
+											"name": "keyword.other.unit.octal.umka"
+										},
+										"9": {
+											"name": "constant.numeric.octal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"10": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"11": {
+											"name": "keyword.other.unit.imaginary.umka"
+										},
+										"12": {
+											"name": "keyword.other.unit.hexadecimal.umka"
+										},
+										"13": {
+											"name": "constant.numeric.hexadecimal.umka",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric.umka"
+												}
+											]
+										},
+										"14": {
+											"name": "punctuation.separator.constant.numeric.umka"
+										},
+										"15": {
+											"name": "keyword.other.unit.imaginary.umka"
+										}
+									}
+								},
+								{
+									"match": "(?:(?:[0-9a-zA-Z_\\.])|(?<=[eEpP])[+-])+",
+									"name": "invalid.illegal.constant.numeric.umka"
+								}
+							]
+						}
+					]
+				}
+			}
 		}
 	}
 }
