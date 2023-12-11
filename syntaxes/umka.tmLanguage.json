@@ -9,20 +9,44 @@
 			"include": "#comments"
 		},
 		{
+			"comment": "Character literals",
+			"begin": "'",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.umka"
+				}
+			},
+			"end": "'",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.umka"
+				}
+			},
+			"name": "string.quoted.single.umka",
+			"patterns": [
+				{
+					"include": "#string_escaped_char"
+				},
+				{
+					"include": "#string_placeholder"
+				}
+			]
+		},
+		{
 			"comment": "Interpreted string literals",
 			"begin": "\"",
 			"beginCaptures": {
 				"0": {
-					"name": "punctuation.definition.string.begin.go"
+					"name": "punctuation.definition.string.begin.umka"
 				}
 			},
 			"end": "\"",
 			"endCaptures": {
 				"0": {
-					"name": "punctuation.definition.string.end.go"
+					"name": "punctuation.definition.string.end.umka"
 				}
 			},
-			"name": "string.quoted.double.go",
+			"name": "string.quoted.double.umka",
 			"patterns": [
 				{
 					"include": "#string_escaped_char"
@@ -34,8 +58,13 @@
 		},
 		{
 			"comment": "Built-in functions",
-			"match": "\\b(append|cap|close|complex|copy|delete|imag|len|make|new|panic|print|println|real|recover)\\b(?=\\()",
+			"match": "\\b(printf|fprintf|sprintf|scanf|fscanf|sscanf|round|trunc|ceil|floor|fabs|sqrt|sin|cos|atan|atan2|exp|log|new|make|copy|append|insert|delete|slice|len|cap|sizeof|sizeofself|selftypeeq|typeptr|valid|validkey|keys|fibercall|fiberalive|exit|error)\\b(?=\\()",
 			"name": "support.function.builtin.umka"
+		},
+		{
+			"comment": "Function",
+			"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b(?=\\()",
+			"name": "entity.name.function.umka"
 		},
 		{
 			"comment": "Function declarations",
@@ -387,12 +416,24 @@
 					"name": "storage.type.error.umka"
 				},
 				{
-					"match": "\\b(real(32|64)|u?int(8|16|32|64)?)\\b",
+					"match": "\\b(real(32|64)?|u?int(8|16|32|64)?)\\b",
 					"name": "storage.type.numeric.umka"
 				},
 				{
 					"match": "\\bstr\\b",
 					"name": "storage.type.string.umka"
+				},
+				{
+					"match": "\\bvoid\\b",
+					"name": "storage.type.void.umka"
+				},
+				{
+					"match": "\\bfiber\\b",
+					"name": "storage.type.fiber.umka"
+				},
+				{
+					"match": "\\bany\\b",
+					"name": "storage.type.any.umka"
 				}
 			]
 		},
@@ -759,21 +800,6 @@
 										},
 										"2": {
 											"name": "punctuation.separator.constant.numeric.umka"
-										},
-										"3": {
-											"name": "keyword.other.unit.imaginary.umka"
-										},
-										"4": {
-											"name": "keyword.other.unit.binary.umka"
-										},
-										"5": {
-											"name": "constant.numeric.binary.umka",
-											"patterns": [
-												{
-													"match": "(?<=[0-9a-fA-F])_(?=[0-9a-fA-F])",
-													"name": "punctuation.separator.constant.numeric.umka"
-												}
-											]
 										},
 										"6": {
 											"name": "punctuation.separator.constant.numeric.umka"
