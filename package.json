@@ -2,7 +2,7 @@
 	"name": "vscode-umka",
 	"displayName": "Umka",
 	"description": "Umka language support",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"publisher": "mrms",
 	"icon": "images/umka-logo.png",
 	"engines": {
@@ -14,13 +14,20 @@
 		"type": "git",
 		"url": "https://github.com/marekmaskarinec/vscode-umka"
 	},
-	"categories": [ "Programming Languages" ],
+	"categories": [
+		"Programming Languages"
+	],
 	"contributes": {
 		"languages": [
 			{
 				"id": "umka",
-				"aliases": ["Umka", "umka"],
-				"extensions": [".um"],
+				"aliases": [
+					"Umka",
+					"umka"
+				],
+				"extensions": [
+					".um"
+				],
 				"configuration": "./umka.configuration.json",
 				"icon": {
 					"dark": "./images/icon-dark.png",
@@ -28,7 +35,6 @@
 				}
 			}
 		],
-
 		"grammars": [
 			{
 				"language": "umka",
